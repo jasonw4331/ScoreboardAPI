@@ -3,7 +3,6 @@ declare(strict_types=1);
 namespace jasonwynn10\ScoreboardAPI;
 
 use pocketmine\network\mcpe\protocol\SetScorePacket;
-use pocketmine\network\mcpe\protocol\types\ScorePacketEntry;
 
 class Scoreboard {
 	public const MAX_LINES = 15;
@@ -13,17 +12,17 @@ class Scoreboard {
 	public const SLOT_SIDEBAR = "sidebar";
 	public const SLOT_BELOWNAME = "belowname"; //not working in 1.7.0.2
 	/** @var string */
-	private $objectiveName;
+	protected $objectiveName = "";
 	/** @var string */
-	private $displayName;
+	protected $displayName = "";
 	/** @var string */
-	private $displaySlot;
+	protected $displaySlot = self::SLOT_SIDEBAR;
 	/** @var int */
-	private $sortOrder;
+	protected $sortOrder = self::SORT_ASCENDING;
 	/** @var int */
-	private $scoreboardId;
-	/** @var ScorePacketEntry[] $entries */
-	private $entries = [];
+	protected $scoreboardId = 0;
+	/** @var ScoreboardEntry[] */
+	protected $entries = [];
 
 	/**
 	 * Scoreboard constructor.
@@ -43,12 +42,23 @@ class Scoreboard {
 	}
 
 	/**
-	 * @param ScorePacketEntry $data
+	 * @param int $line
+	 * @param int $score
+	 * @param int $type
+	 * @param string $identifier use entity unique id if type is player or entity
 	 *
-	 * @throws \Exception
+	 * @return ScoreboardEntry
+	 */
+	public function createEntry(int $line, int $score, int $type, string $identifier) : ScoreboardEntry {
+		return new ScoreboardEntry($this, $line, $score, $type, $identifier);
+	}
+
+	/**
+	 * @param ScoreboardEntry $data
+	 *
 	 * @return Scoreboard
 	 */
-	public function addEntry(ScorePacketEntry $data) : Scoreboard {
+	public function addEntry(ScoreboardEntry $data) : Scoreboard {
 		if($data->objectiveName !== $this->objectiveName) {
 			throw new \UnexpectedValueException("Scoreboard entry data does not match Scoreboard data");
 		}
@@ -66,12 +76,11 @@ class Scoreboard {
 	}
 
 	/**
-	 * @param ScorePacketEntry $data
+	 * @param ScoreboardEntry $data
 	 *
-	 * @throws \Exception
 	 * @return Scoreboard
 	 */
-	public function removeEntry(ScorePacketEntry $data) : Scoreboard {
+	public function removeEntry(ScoreboardEntry $data) : Scoreboard {
 		if($data->objectiveName !== $this->objectiveName) {
 			throw new \UnexpectedValueException("Scoreboard entry data does not match Scoreboard data");
 		}
@@ -177,7 +186,7 @@ class Scoreboard {
 	}
 
 	/**
-	 * @return ScorePacketEntry[]
+	 * @return ScoreboardEntry[]
 	 */
 	public function getEntries() : array {
 		return $this->entries;

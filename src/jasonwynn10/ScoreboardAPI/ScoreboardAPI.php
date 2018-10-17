@@ -31,6 +31,18 @@ class ScoreboardAPI extends PluginBase implements Listener {
 	}
 
 	/**
+	 * Reset plugin if server is reloaded
+	 */
+	public function onDisable() {
+		foreach($this->scoreboards as $scoreboard) {
+			$this->removeScoreboard($scoreboard);
+		}
+		$this->scoreboardCount = 0;
+		$this->scoreboards = [];
+		$this->scoreboardViewers = [];
+	}
+
+	/**
 	 * @param string $objectiveName
 	 * @param string $displayName
 	 * @param string $displaySlot
@@ -72,7 +84,6 @@ class ScoreboardAPI extends PluginBase implements Listener {
 				}
 				$player->sendDataPacket($pk);
 			}
-			unset($this->scoreboards[$scoreboard->getObjectiveName()]); // no more scoreboard because no players can see it
 			unset($this->scoreboardViewers[$scoreboard->getObjectiveName()]);
 		}
 		return $scoreboard;
