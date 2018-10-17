@@ -45,11 +45,15 @@ class Scoreboard {
 	/**
 	 * @param ScorePacketEntry $data
 	 *
+	 * @throws \Exception
 	 * @return Scoreboard
 	 */
 	public function addEntry(ScorePacketEntry $data) : Scoreboard {
-		if($data->objectiveName !== $this->objectiveName or $data->scoreboardId < $this->scoreboardId) {
-			throw new \UnexpectedValueException("Entry data does not match Scoreboard data");
+		if($data->objectiveName !== $this->objectiveName) {
+			throw new \UnexpectedValueException("Scoreboard entry data does not match Scoreboard data");
+		}
+		if($data->scoreboardId - $this->scoreboardId > self::MAX_LINES or $data->scoreboardId - $this->scoreboardId < 0) {
+			throw new \OutOfRangeException("Scoreboard entry line number is out of range 0-15");
 		}
 		$this->entries[] = $data;
 		$pk = new SetScorePacket();
@@ -64,11 +68,15 @@ class Scoreboard {
 	/**
 	 * @param ScorePacketEntry $data
 	 *
+	 * @throws \Exception
 	 * @return Scoreboard
 	 */
 	public function removeEntry(ScorePacketEntry $data) : Scoreboard {
-		if($data->objectiveName !== $this->objectiveName or $data->scoreboardId < $this->scoreboardId) {
-			throw new \UnexpectedValueException("Entry data does not match Scoreboard data");
+		if($data->objectiveName !== $this->objectiveName) {
+			throw new \UnexpectedValueException("Scoreboard entry data does not match Scoreboard data");
+		}
+		if($data->scoreboardId - $this->scoreboardId > self::MAX_LINES or $data->scoreboardId - $this->scoreboardId < 0) {
+			throw new \OutOfRangeException("Scoreboard entry line number is out of range 0-15");
 		}
 		$key = array_search($data, $this->entries);
 		if($key !== false) {
