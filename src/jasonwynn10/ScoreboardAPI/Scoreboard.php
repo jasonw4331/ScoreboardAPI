@@ -48,7 +48,7 @@ class Scoreboard {
 	 * @return Scoreboard
 	 */
 	public function addEntry(ScorePacketEntry $data) : Scoreboard {
-		if($data->objectiveName !== $this->objectiveName or $data->scoreboardId !== $this->scoreboardId) {
+		if($data->objectiveName !== $this->objectiveName or $data->scoreboardId < $this->scoreboardId) {
 			throw new \UnexpectedValueException("Entry data does not match Scoreboard data");
 		}
 		$this->entries[] = $data;
@@ -67,7 +67,7 @@ class Scoreboard {
 	 * @return Scoreboard
 	 */
 	public function removeEntry(ScorePacketEntry $data) : Scoreboard {
-		if($data->objectiveName !== $this->objectiveName or $data->scoreboardId !== $this->scoreboardId) {
+		if($data->objectiveName !== $this->objectiveName or $data->scoreboardId < $this->scoreboardId) {
 			throw new \UnexpectedValueException("Entry data does not match Scoreboard data");
 		}
 		$key = array_search($data, $this->entries);
