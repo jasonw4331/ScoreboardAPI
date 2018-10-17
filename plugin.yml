@@ -1,0 +1,7 @@
+name: ScoreboardAPI
+main: jasonwynn10\ScoreboardAPI\ScoreboardAPI
+version: 0.1.0
+api: 3.3.0
+author: "jasonwynn10"
+description: "Simple API for creating scoreboards on MCPE clients"
+load: STARTUP
