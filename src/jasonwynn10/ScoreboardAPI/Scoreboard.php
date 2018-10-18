@@ -30,10 +30,10 @@ class Scoreboard {
 	 * @param string $objectiveName
 	 * @param string $displayName
 	 * @param string $displaySlot
-	 * @param string $sortOrder
+	 * @param int $sortOrder
 	 * @param int $scoreboardId
 	 */
-	public function __construct(string $objectiveName, string $displayName, string $displaySlot, string $sortOrder, int $scoreboardId) {
+	public function __construct(string $objectiveName, string $displayName, string $displaySlot, int $sortOrder, int $scoreboardId) {
 		$this->objectiveName = $objectiveName;
 		$this->displayName = $displayName;
 		$this->displaySlot = $displaySlot;
@@ -45,11 +45,11 @@ class Scoreboard {
 	 * @param int $line
 	 * @param int $score
 	 * @param int $type
-	 * @param string $identifier use entity unique id if type is player or entity
+	 * @param int|string $identifier use entity unique id if type is player or entity
 	 *
 	 * @return ScoreboardEntry
 	 */
-	public function createEntry(int $line, int $score, int $type, string $identifier) : ScoreboardEntry {
+	public function createEntry(int $line, int $score, int $type, $identifier) : ScoreboardEntry {
 		return new ScoreboardEntry($this, $line, $score, $type, $identifier);
 	}
 
@@ -65,10 +65,9 @@ class Scoreboard {
 		if($data->scoreboardId - $this->scoreboardId > self::MAX_LINES or $data->scoreboardId - $this->scoreboardId < 0) {
 			throw new \OutOfRangeException("Scoreboard entry line number is out of range 0-15");
 		}
-		$this->entries[] = $data;
 		$pk = new SetScorePacket();
 		$pk->type = SetScorePacket::TYPE_CHANGE;
-		$pk->entries[] = $data;
+		$this->entries[] = $pk->entries[] = $data;
 		foreach(ScoreboardAPI::getInstance()->getScoreboardViewers($this) as $viewer) {
 			$viewer->sendDataPacket($pk);
 		}

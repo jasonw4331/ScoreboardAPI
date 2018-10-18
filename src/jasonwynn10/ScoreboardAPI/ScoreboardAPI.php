@@ -46,12 +46,12 @@ class ScoreboardAPI extends PluginBase implements Listener {
 	 * @param string $objectiveName
 	 * @param string $displayName
 	 * @param string $displaySlot
-	 * @param string $sortOrder
+	 * @param int $sortOrder
 	 * @param int $scoreboardId
 	 *
 	 * @return Scoreboard
 	 */
-	public function createScoreboard(string $objectiveName, string $displayName, string $displaySlot, string $sortOrder, int $scoreboardId = null) : Scoreboard {
+	public function createScoreboard(string $objectiveName, string $displayName, string $displaySlot, int $sortOrder, int $scoreboardId = null) : Scoreboard {
 		$this->scoreboardCount++;
 		$this->scoreboardViewers[$objectiveName] = [];
 		return $this->scoreboards[$objectiveName] = new Scoreboard($objectiveName, $displayName, $displaySlot, $sortOrder, $scoreboardId ?? $this->scoreboardCount);
@@ -68,7 +68,7 @@ class ScoreboardAPI extends PluginBase implements Listener {
 		$pk->objectiveName = $scoreboard->getObjectiveName();
 		if(!empty($players)) {
 			foreach($players as $player) {
-				if($scoreboard->getDisplaySlot() === "belowname") {
+				if($scoreboard->getDisplaySlot() === Scoreboard::SLOT_BELOWNAME) {
 					$player->setScoreTag("");
 				}
 				$key = array_search($player->getName(), $this->scoreboardViewers[$scoreboard->getObjectiveName()]);
@@ -79,7 +79,7 @@ class ScoreboardAPI extends PluginBase implements Listener {
 			}
 		}else {
 			foreach($this->getScoreboardViewers($scoreboard) as $player) {
-				if($scoreboard->getDisplaySlot() === "belowname") {
+				if($scoreboard->getDisplaySlot() === Scoreboard::SLOT_BELOWNAME) {
 					$player->setScoreTag("");
 				}
 				$player->sendDataPacket($pk);
@@ -134,7 +134,7 @@ class ScoreboardAPI extends PluginBase implements Listener {
 		$pk2->entries = $scoreboard->getEntries();
 		if(!empty($players)) {
 			foreach($players as $player) {
-				if($scoreboard->getDisplaySlot() === "belowname") {
+				if($scoreboard->getDisplaySlot() === Scoreboard::SLOT_BELOWNAME) {
 					$player->setScoreTag($scoreboard->getDisplayName());
 				}
 				$this->scoreboardViewers[$scoreboard->getObjectiveName()][] = $player->getName();
@@ -143,7 +143,7 @@ class ScoreboardAPI extends PluginBase implements Listener {
 			}
 		}else {
 			foreach($this->getScoreboardViewers($scoreboard) as $player) {
-				if($scoreboard->getDisplaySlot() === "belowname") {
+				if($scoreboard->getDisplaySlot() === Scoreboard::SLOT_BELOWNAME) {
 					$player->setScoreTag($scoreboard->getDisplayName());
 				}
 				$this->scoreboardViewers[$scoreboard->getObjectiveName()][] = $player->getName();

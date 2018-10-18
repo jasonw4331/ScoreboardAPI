@@ -12,9 +12,10 @@ class ScoreboardEntry extends ScorePacketEntry {
 	 * @param int $line
 	 * @param int $score
 	 * @param int $type
-	 * @param string $identifier use entity unique id if type is player or entity
+	 * @param int|string $identifier use entity unique id if type is player or entity
 	 */
-	public function __construct(Scoreboard $scoreboard, int $line, int $score, int $type, string $identifier) {
+	public function __construct(Scoreboard $scoreboard, int $line, int $score, int $type, $identifier) {
+		$this->objectiveName = $scoreboard->getObjectiveName();
 		$this->scoreboardId = $scoreboard->getScoreboardId() + $line;
 		$this->type = $type;
 		if($type === self::TYPE_FAKE_PLAYER) {
