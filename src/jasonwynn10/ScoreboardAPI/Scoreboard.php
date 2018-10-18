@@ -49,7 +49,7 @@ class Scoreboard {
 	 *
 	 * @return ScoreboardEntry
 	 */
-	public function createEntry(int $line, int $score, int $type, $identifier) : ScoreboardEntry {
+	public function createEntry(int $line, int $score, int $type = ScoreboardEntry::TYPE_FAKE_PLAYER, $identifier = "identifier") : ScoreboardEntry {
 		return new ScoreboardEntry($this, $line, $score, $type, $identifier);
 	}
 
