@@ -47,14 +47,13 @@ class ScoreboardAPI extends PluginBase implements Listener {
 	 * @param string $displayName
 	 * @param string $displaySlot
 	 * @param int $sortOrder
-	 * @param int $scoreboardId
 	 *
 	 * @return Scoreboard
 	 */
-	public function createScoreboard(string $objectiveName, string $displayName, string $displaySlot = Scoreboard::SLOT_SIDEBAR, int $sortOrder = Scoreboard::SORT_ASCENDING, int $scoreboardId = null) : Scoreboard {
+	public function createScoreboard(string $objectiveName, string $displayName, string $displaySlot = Scoreboard::SLOT_SIDEBAR, int $sortOrder = Scoreboard::SORT_ASCENDING) : Scoreboard {
 		$this->scoreboardCount++;
 		$this->scoreboardViewers[$objectiveName] = [];
-		return $this->scoreboards[$objectiveName] = new Scoreboard($objectiveName, $displayName, $displaySlot, $sortOrder, $scoreboardId ?? $this->scoreboardCount);
+		return $this->scoreboards[$objectiveName] = new Scoreboard($objectiveName, $displayName, $displaySlot, $sortOrder, $this->scoreboardCount);
 	}
 
 	/**
