@@ -103,6 +103,28 @@ class Scoreboard {
 	}
 
 	/**
+	 * Automatically pads any fake player names according to score digit count
+	 */
+	public function padEntries() : void {
+		$entries = [];
+		$maxSpaces = 1;
+		foreach($this->entries as $entry) {
+			$entries[] = $entry;
+			$digitCount = strlen((string)$entry->score);
+			if($maxSpaces < $digitCount) {
+				$maxSpaces = $digitCount;
+			}
+			$this->removeEntry($entry);
+		}
+		foreach($entries as $entry) {
+			$newString = $entry->customName ?? "";
+			$newString .= str_repeat(" ", $maxSpaces - strlen((string)$entry->score));
+			$entry->customName = $newString;
+			$this->addEntry($entry);
+		}
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getObjectiveName() : string {
