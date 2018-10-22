@@ -1,5 +1,7 @@
 # ScoreboardAPI
-A simple API for creating scoreboards on PocketMine-MP Servers
+[![Discord](https://img.shields.io/badge/chat-on%20discord-7289da.svg)](https://discord.gg/tZQMhBQ)
+[![Poggit-Ci](https://poggit.pmmp.io/ci.shield/jasonwynn10/ScoreboardAPI/ScoreboardAPI)](https://poggit.pmmp.io/ci/jasonwynn10/ScoreboardAPI/ScoreboardAPI)
+[![Download count](https://poggit.pmmp.io/shield.dl.total/ScoreboardAPI)](https://poggit.pmmp.io/p/ScoreboardAPI)
 
 ## Basic API
 #### Imports
