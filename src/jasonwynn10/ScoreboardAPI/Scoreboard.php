@@ -50,6 +50,9 @@ class Scoreboard {
 	 * @return ScoreboardEntry
 	 */
 	public function createEntry(int $line, int $score, int $type = ScoreboardEntry::TYPE_FAKE_PLAYER, $identifier = "identifier") : ScoreboardEntry {
+		if($line > self::MAX_LINES or $line < 0) {
+			throw new \OutOfRangeException("Entry line number must be in range 0-15");
+		}
 		return new ScoreboardEntry($this, $line, $score, $type, $identifier);
 	}
 
