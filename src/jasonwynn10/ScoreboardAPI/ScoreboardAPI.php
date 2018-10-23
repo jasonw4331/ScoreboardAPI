@@ -126,11 +126,11 @@ class ScoreboardAPI extends PluginBase implements Listener {
 		$pk->displaySlot = $scoreboard->getDisplaySlot();
 		$pk->objectiveName = $scoreboard->getObjectiveName();
 		$pk->displayName = $scoreboard->getDisplayName();
-		$pk->criteriaName = "dummy";
+		$pk->criteriaName = "dummy"; // TODO
 		$pk->sortOrder = $scoreboard->getSortOrder();
 		$pk2 = new SetScorePacket();
 		$pk2->type = SetScorePacket::TYPE_CHANGE;
-		$pk2->entries = $scoreboard->getEntries();
+		$pk2->entries = $scoreboard->getEntries($player);
 		if(!empty($players)) {
 			foreach($players as $player) {
 				if($scoreboard->getDisplaySlot() === Scoreboard::SLOT_BELOWNAME) {

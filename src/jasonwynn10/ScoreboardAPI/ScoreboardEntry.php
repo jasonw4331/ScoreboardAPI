@@ -33,7 +33,7 @@ class ScoreboardEntry extends ScorePacketEntry {
 	 */
 	public function pad() : void {
 		if($this->type !== self::TYPE_FAKE_PLAYER) {
-			throw new \Exception("Entry type must be Fake Player in order to pad");
+			throw new \Exception("Entry type must be Fake Player in order to pad"); // throw exception rather than let devs wonder why it's not working
 		}
 		$scoreboard = ScoreboardAPI::getInstance()->getScoreboard($this->objectiveName);
 		$scoreboard->removeEntry($this);

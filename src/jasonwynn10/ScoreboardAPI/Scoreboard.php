@@ -3,6 +3,8 @@ declare(strict_types=1);
 namespace jasonwynn10\ScoreboardAPI;
 
 use pocketmine\network\mcpe\protocol\SetScorePacket;
+use pocketmine\Player;
+use pocketmine\Server;
 
 class Scoreboard {
 	public const MAX_LINES = 15;
@@ -23,6 +25,10 @@ class Scoreboard {
 	protected $scoreboardId = 0;
 	/** @var ScoreboardEntry[] */
 	protected $entries = [];
+	/** @var int $entryCount */
+	protected $entryCount = 0;
+	/** @var string[][] $entryViewers */
+	protected $entryViewers = [];
 
 	/**
 	 * Scoreboard constructor.
@@ -58,10 +64,11 @@ class Scoreboard {
 
 	/**
 	 * @param ScoreboardEntry $data
+	 * @param Player[] $players
 	 *
 	 * @return Scoreboard
 	 */
-	public function addEntry(ScoreboardEntry $data) : Scoreboard {
+	public function addEntry(ScoreboardEntry $data, array $players = []) : Scoreboard {
 		if($data->objectiveName !== $this->objectiveName) {
 			throw new \UnexpectedValueException("Scoreboard entry data does not match Scoreboard data");
 		}
@@ -71,18 +78,27 @@ class Scoreboard {
 		$pk = new SetScorePacket();
 		$pk->type = SetScorePacket::TYPE_CHANGE;
 		$this->entries[] = $pk->entries[] = $data;
-		foreach(ScoreboardAPI::getInstance()->getScoreboardViewers($this) as $viewer) {
-			$viewer->sendDataPacket($pk);
+		if(!empty($players)) {
+			foreach($players as $player) {
+				$this->entryViewers[$data->objectiveName ?? $data->entityUniqueId][] = $player->getName();
+				$player->sendDataPacket($pk);
+			}
+		}else {
+			foreach(ScoreboardAPI::getInstance()->getScoreboardViewers($this) as $player) {
+				$this->entryViewers[$data->objectiveName ?? $data->entityUniqueId][] = $player->getName();
+				$player->sendDataPacket($pk);
+			}
 		}
 		return $this;
 	}
 
 	/**
 	 * @param ScoreboardEntry $data
+	 * @param Player[] $players
 	 *
 	 * @return Scoreboard
 	 */
-	public function removeEntry(ScoreboardEntry $data) : Scoreboard {
+	public function removeEntry(ScoreboardEntry $data, array $players = []) : Scoreboard {
 		if($data->objectiveName !== $this->objectiveName) {
 			throw new \UnexpectedValueException("Scoreboard entry data does not match Scoreboard data");
 		}
@@ -96,8 +112,22 @@ class Scoreboard {
 		$pk = new SetScorePacket();
 		$pk->type = SetScorePacket::TYPE_REMOVE;
 		$pk->entries[] = $data;
-		foreach(ScoreboardAPI::getInstance()->getScoreboardViewers($this) as $viewer) {
-			$viewer->sendDataPacket($pk);
+		if(!empty($players)) {
+			foreach($players as $player) {
+				$key = array_search($player->getName(), $this->entryViewers[$data->customName ?? $data->entityUniqueId]);
+				if($key !== false) {
+					unset($this->entryViewers[$data->customName ?? $data->entityUniqueId][$key]);
+				}
+				$player->sendDataPacket($pk);
+			}
+		}else {
+			foreach(ScoreboardAPI::getInstance()->getScoreboardViewers($this) as $player) {
+				$key = array_search($player->getName(), $this->entryViewers[$data->customName ?? $data->entityUniqueId]);
+				if($key !== false) {
+					unset($this->entryViewers[$data->customName ?? $data->entityUniqueId][$key]);
+				}
+				$player->sendDataPacket($pk);
+			}
 		}
 		return $this;
 	}
@@ -216,5 +246,21 @@ class Scoreboard {
 	 */
 	public function getEntries() : array {
 		return $this->entries;
+	}
+
+	/**
+	 * @param ScoreboardEntry $entry
+	 *
+	 * @return ScoreboardEntry[]
+	 */
+	public function getEntryViewers(ScoreboardEntry $entry) : array {
+		$return = [];
+		foreach($this->entryViewers[$entry->customName ?? $entry->entityUniqueId] as $name) {
+			$player = Server::getInstance()->getPlayer($name);
+			if($player !== null) {
+				$return[] = $player;
+			}
+		}
+		return $return;
 	}
 }
