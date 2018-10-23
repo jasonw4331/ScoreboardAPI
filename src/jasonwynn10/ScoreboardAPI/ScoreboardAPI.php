@@ -43,20 +43,6 @@ class ScoreboardAPI extends PluginBase implements Listener {
 	}
 
 	/**
-	 * @param string $objectiveName
-	 * @param string $displayName
-	 * @param string $displaySlot
-	 * @param int $sortOrder
-	 *
-	 * @return Scoreboard
-	 */
-	public function createScoreboard(string $objectiveName, string $displayName, string $displaySlot = Scoreboard::SLOT_SIDEBAR, int $sortOrder = Scoreboard::SORT_ASCENDING) : Scoreboard {
-		$this->scoreboardCount++;
-		$this->scoreboardViewers[$objectiveName] = [];
-		return $this->scoreboards[$objectiveName] = new Scoreboard($objectiveName, $displayName, $displaySlot, $sortOrder, $this->scoreboardCount);
-	}
-
-	/**
 	 * @param Scoreboard $scoreboard
 	 * @param Player[] $players
 	 *
@@ -102,6 +88,20 @@ class ScoreboardAPI extends PluginBase implements Listener {
 			}
 		}
 		return $return;
+	}
+
+	/**
+	 * @param string $objectiveName
+	 * @param string $displayName
+	 * @param string $displaySlot
+	 * @param int $sortOrder
+	 *
+	 * @return Scoreboard
+	 */
+	public function createScoreboard(string $objectiveName, string $displayName, string $displaySlot = Scoreboard::SLOT_SIDEBAR, int $sortOrder = Scoreboard::SORT_ASCENDING) : Scoreboard {
+		$this->scoreboardCount++;
+		$this->scoreboardViewers[$objectiveName] = [];
+		return $this->scoreboards[$objectiveName] = new Scoreboard($objectiveName, $displayName, $displaySlot, $sortOrder, $this->scoreboardCount);
 	}
 
 	/**
