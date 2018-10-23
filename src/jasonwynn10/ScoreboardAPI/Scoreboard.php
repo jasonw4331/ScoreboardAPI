@@ -251,7 +251,7 @@ class Scoreboard {
 	/**
 	 * @param ScoreboardEntry $entry
 	 *
-	 * @return ScoreboardEntry[]
+	 * @return Player[]
 	 */
 	public function getEntryViewers(ScoreboardEntry $entry) : array {
 		$return = [];
