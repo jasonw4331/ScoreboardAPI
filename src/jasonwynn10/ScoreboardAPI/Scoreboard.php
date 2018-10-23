@@ -103,12 +103,15 @@ class Scoreboard {
 	}
 
 	/**
-	 * Automatically pads any fake player names according to score digit count
+	 * Automatically pads any custom text entries according to score digit count
 	 */
 	public function padEntries() : void {
 		$entries = [];
 		$maxSpaces = 1;
 		foreach($this->entries as $entry) {
+			if($entry->type !== ScoreboardEntry::TYPE_FAKE_PLAYER) {
+				continue;
+			}
 			$entries[] = $entry;
 			$digitCount = strlen((string)$entry->score);
 			if($maxSpaces < $digitCount) {
@@ -117,9 +120,8 @@ class Scoreboard {
 			$this->removeEntry($entry);
 		}
 		foreach($entries as $entry) {
-			$newString = $entry->customName ?? "";
-			$newString .= str_repeat(" ", $maxSpaces - strlen((string)$entry->score));
-			$entry->customName = $newString;
+			if($entry->customName{strlen($entry->customName)} !== " ")
+				$entry->customName = str_pad($entry->customName, $maxSpaces - strlen((string)$entry->score));
 			$this->addEntry($entry);
 		}
 	}
