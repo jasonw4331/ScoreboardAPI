@@ -130,7 +130,6 @@ class ScoreboardAPI extends PluginBase implements Listener {
 		$pk->sortOrder = $scoreboard->getSortOrder();
 		$pk2 = new SetScorePacket();
 		$pk2->type = SetScorePacket::TYPE_CHANGE;
-
 		if(!empty($players)) {
 			foreach($players as $player) {
 				foreach($scoreboard->getEntries() as $entry) {
@@ -146,8 +145,12 @@ class ScoreboardAPI extends PluginBase implements Listener {
 				$player->sendDataPacket($pk2);
 			}
 		}else {
-			$pk2->entries[] = $scoreboard->getEntries();
 			foreach($this->getScoreboardViewers($scoreboard) as $player) {
+				foreach($scoreboard->getEntries() as $entry) {
+					if(in_array($player, $scoreboard->getEntryViewers($entry))) {
+						$pk2->entries[] = $entry;
+					}
+				}
 				if($scoreboard->getDisplaySlot() === Scoreboard::SLOT_BELOWNAME) {
 					$player->setScoreTag($scoreboard->getDisplayName());
 				}
