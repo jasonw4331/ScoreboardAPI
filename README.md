@@ -58,8 +58,9 @@ So now you have your entries all on the board, but you need to change one.
 Entries can be updated by removing the existing entry, then re-adding it.
 ```php
 /** @var Scoreboard $scoreboard */
-$scoreboard->removeEntry($entry); //remove old entry
+$scoreboard->removeEntry($entry); // remove old entry
 $entry->score++; // update score
+$entry->customName = "Line ".$entry->score; // update custom name
 $scoreboard->addEntry($entry); // add updated entry
 ```
 
@@ -74,15 +75,6 @@ $scoreboard = $api->createScoreboard("objective", "Scoreboard Title", "sidebar",
 
 $api->sendScoreboard($scoreboard); // send scoreboard to everyone
 ```
-Optionally, the second parameter can be set for specific scoreboard viewers to be added.
-```php
-/** @var PluginBase $this */
-$api = $this->getServer()->getPluginManager()->getPlugin("ScoreboardAPI");
-$scoreboard = $api->createScoreboard("objective", "Scoreboard Title", "sidebar", "ascending");
-
-/** @var Player $player */
-$api->sendScoreboard($scoreboard, [$player]); // send scoreboard to player
-```
 
 #### Deleting a scoreboard
 Let's say you don't want the scoreboard to show to people anymore.
@@ -96,7 +88,21 @@ $api->sendScoreboard($scoreboard); // scoreboard sent to everyone
 
 $api->removeScoreboard($scoreboard); // remove scoreboard from everyone
 ```
-Optionally, the second parameter can be set for specific scoreboard viewers to be removed.
+
+## Advanced API
+### Specifying Viewers
+#### Scoreboard Viewers
+In `ScoreboardAPI::sendScoreboard()`, the second parameter can be set for specific scoreboard viewers to be added.
+```php
+/** @var PluginBase $this */
+$api = $this->getServer()->getPluginManager()->getPlugin("ScoreboardAPI");
+$scoreboard = $api->createScoreboard("objective", "Scoreboard Title", "sidebar", "ascending");
+
+/** @var Player $player */
+$api->sendScoreboard($scoreboard, [$player]); // scoreboard sent to player
+```
+
+Like sending, the second parameter in `ScoreboardAPI::removeScoreboard()` can be set for specific scoreboard viewers to be removed.
 ```php
 /** @var PluginBase $this */
 $api = $this->getServer()->getPluginManager()->getPlugin("ScoreboardAPI");
@@ -106,6 +112,42 @@ $api->sendScoreboard($scoreboard); // scoreboard sent to everyone
 
 $api->removeScoreboard($scoreboard, [$player]); // scoreboard removed from player
 ```
+#### Entry Viewers
+Entry viewers can be set when adding the entry to the scoreboard via the second parameter of `Scoreboard::addEntry()`
+```php
+$line = 1; // line number
+$score = 1; // current score
+$type = ScoreboardEntry::TYPE_FAKE_PLAYER; // other types are TYPE_PLAYER and TYPE_ENTITY
+$identifier = "line 1"; // this is a string for fake players but must be an entity id for other types
+/** @var Scoreboard $scoreboard */
+$entry = $scoreboard->createEntry($line, $score, $type, $identifier);
+/** @var Player $player */
+$scoreboard->addEntry($entry, [$player]);
+```
 
-## Advanced API
-TODO :P
+Players can be specified for removing the entry via the second parameter of `Scoreboard::removeEntry()`
+```php
+$line = 1; // line number
+$score = 1; // current score
+$type = ScoreboardEntry::TYPE_FAKE_PLAYER; // other types are TYPE_PLAYER and TYPE_ENTITY
+$identifier = "line 1"; // this is a string for fake players but must be an entity id for other types
+/** @var Scoreboard $scoreboard */
+$entry = $scoreboard->createEntry($line, $score, $type, $identifier);
+/** @var Player $player */
+$scoreboard->addEntry($entry, [$player]);
+```
+
+Once an entry as been added or removed, all specified viewers will be able to see the changes immediately.
+### Padding
+#### Scoreboard Padding
+Padding the scoreboard will offset the text of each entry from the score with the most digits. Padding does not affect entries which use entity ids.
+```php
+/** @var Scoreboard $scoreboard */
+$scoreboard->padEntries();
+```
+#### Entry Padding
+Entry padding can only be done with Fake Player types. Padding offsets the text from the score by the score with the most digits in the scoreboard.
+```php
+/** @var ScoreboardEntry $entry */
+$entry->pad();
+```
