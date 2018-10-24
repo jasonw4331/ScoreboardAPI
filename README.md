@@ -90,7 +90,6 @@ $api->removeScoreboard($scoreboard); // remove scoreboard from everyone
 ```
 
 ## Advanced API
-### Specifying Viewers
 #### Scoreboard Viewers
 In `ScoreboardAPI::sendScoreboard()`, the second parameter can be set for specific scoreboard viewers to be added.
 ```php
@@ -138,7 +137,6 @@ $scoreboard->addEntry($entry, [$player]);
 ```
 
 Once an entry as been added or removed, all specified viewers will be able to see the changes immediately.
-### Padding
 #### Scoreboard Padding
 Padding the scoreboard will offset the text of each entry from the score with the most digits. Padding does not affect entries which use entity ids.
 ```php
