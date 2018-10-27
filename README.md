@@ -14,12 +14,7 @@ use jasonwynn10\ScoreboardAPI\ScoreboardEntry;
 
 #### Creating a scoreboard
 Scoreboard instances can be created through the ScoreboardAPI class.
-```php
-/** @var PluginBase $this */
-$api = $this->getServer()->getPluginManager()->getPlugin("ScoreboardAPI");
-$scoreboard = $api->createScoreboard("objective", "Scoreboard Title", "sidebar", "ascending");
-```
-This method also has default values for the most common uses. E.g. the sidebar in ascending order.
+This method defaults to using the sidebar with scores in ascending order.
 ```php
 /** @var PluginBase $this */
 $api = $this->getServer()->getPluginManager()->getPlugin("ScoreboardAPI");
@@ -55,13 +50,13 @@ Once an entry as been removed from the scoreboard, all scoreboard viewers will a
 #### Updating an entry
 So now you have your entries all on the board, but you need to change one.
 
-Entries can be updated by removing the existing entry, then re-adding it.
+Entries can be updated through the Scoreboard instance.
 ```php
 /** @var Scoreboard $scoreboard */
-$scoreboard->removeEntry($entry); // remove old entry
+$scoreboard->addEntry($entry); // entry added
 $entry->score++; // update score
 $entry->customName = "Line ".$entry->score; // update custom name
-$scoreboard->addEntry($entry); // add updated entry
+$scoreboard->updateEntry($entry); // update changed entry
 ```
 
 #### Sending a scoreboard
@@ -71,7 +66,7 @@ Scoreboards can be sent through the ScoreboardAPI class.
 ```php
 /** @var PluginBase $this */
 $api = $this->getServer()->getPluginManager()->getPlugin("ScoreboardAPI");
-$scoreboard = $api->createScoreboard("objective", "Scoreboard Title", "sidebar", "ascending");
+$scoreboard = $api->createScoreboard("objective", "Scoreboard Title");
 
 $api->sendScoreboard($scoreboard); // send scoreboard to everyone
 ```
@@ -83,19 +78,27 @@ Scoreboards can be removed through the ScoreboardAPI class.
 ```php
 /** @var PluginBase $this */
 $api = $this->getServer()->getPluginManager()->getPlugin("ScoreboardAPI");
-$scoreboard = $api->createScoreboard("objective", "Scoreboard Title", "sidebar", "ascending");
+$scoreboard = $api->createScoreboard("objective", "Scoreboard Title");
 $api->sendScoreboard($scoreboard); // scoreboard sent to everyone
 
 $api->removeScoreboard($scoreboard); // remove scoreboard from everyone
 ```
 
 ## Advanced API
+#### Alternate Scoreboard Creation
+Scoreboard instances can be created through the ScoreboardAPI class. This method defaults to using the sidebar with scores in ascending order, but can be changed to use either the `LIST` or `BELOWNAME` slot in descending order.
+```php
+/** @var PluginBase $this */
+$api = $this->getServer()->getPluginManager()->getPlugin("ScoreboardAPI");
+$scoreboard = $api->createScoreboard("objective", "Scoreboard Title", Scoreboard::SLOT_LIST, Scoreboard::SORT_DESCENDING); // scoreboard is in list slot in descending order
+```
+
 #### Scoreboard Viewers
 In `ScoreboardAPI::sendScoreboard()`, the second parameter can be set for specific scoreboard viewers to be added.
 ```php
 /** @var PluginBase $this */
 $api = $this->getServer()->getPluginManager()->getPlugin("ScoreboardAPI");
-$scoreboard = $api->createScoreboard("objective", "Scoreboard Title", "sidebar", "ascending");
+$scoreboard = $api->createScoreboard("objective", "Scoreboard Title"); //create scoreboard
 
 /** @var Player $player */
 $api->sendScoreboard($scoreboard, [$player]); // scoreboard sent to player
@@ -105,7 +108,7 @@ Like sending, the second parameter in `ScoreboardAPI::removeScoreboard()` can be
 ```php
 /** @var PluginBase $this */
 $api = $this->getServer()->getPluginManager()->getPlugin("ScoreboardAPI");
-$scoreboard = $api->createScoreboard("objective", "Scoreboard Title", "sidebar", "ascending");
+$scoreboard = $api->createScoreboard("objective", "Scoreboard Title");
 /** @var Player $player */
 $api->sendScoreboard($scoreboard); // scoreboard sent to everyone
 
@@ -121,7 +124,7 @@ $identifier = "line 1"; // this is a string for fake players but must be an enti
 /** @var Scoreboard $scoreboard */
 $entry = $scoreboard->createEntry($line, $score, $type, $identifier);
 /** @var Player $player */
-$scoreboard->addEntry($entry, [$player]);
+$scoreboard->addEntry($entry, [$player]); // add entry to scoreboard for player
 ```
 
 Players can be specified for removing the entry via the second parameter of `Scoreboard::removeEntry()`
@@ -133,7 +136,17 @@ $identifier = "line 1"; // this is a string for fake players but must be an enti
 /** @var Scoreboard $scoreboard */
 $entry = $scoreboard->createEntry($line, $score, $type, $identifier);
 /** @var Player $player */
-$scoreboard->addEntry($entry, [$player]);
+$scoreboard->removeEntry($entry, [$player]); // remove entry only for player
+```
+
+Updating entries works the similar to adding and removing them by use of the second parameter in `Scoreboard::updateEntry()`
+```php
+/** @var Scoreboard $scoreboard */
+$scoreboard->addEntry($entry); // add entry
+$entry->score++; // update score
+$entry->customName = "Line ".$entry->score; // update custom name
+/** @var Player $player */
+$scoreboard->updateEntry($entry, [$player]); // update changed entry for player
 ```
 
 Once an entry as been added or removed, all specified viewers will be able to see the changes immediately.

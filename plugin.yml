@@ -1,6 +1,6 @@
 name: ScoreboardAPI
 main: jasonwynn10\ScoreboardAPI\ScoreboardAPI
-version: 1.0.1
+version: 1.0.2
 api: 3.3.0
 author: "jasonwynn10"
 description: "A simple API for creating scoreboards on PocketMine-MP servers"
