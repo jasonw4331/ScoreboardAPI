@@ -170,6 +170,7 @@ class Scoreboard {
 	 */
 	public function setObjectiveName(string $objectiveName) : Scoreboard {
 		$this->objectiveName = $objectiveName;
+		ScoreboardAPI::getInstance()->sendScoreboard($this, ScoreboardAPI::getInstance()->getScoreboardViewers($this));
 		return $this;
 	}
 
@@ -187,6 +188,7 @@ class Scoreboard {
 	 */
 	public function setDisplayName(string $displayName) : Scoreboard {
 		$this->displayName = $displayName;
+		ScoreboardAPI::getInstance()->sendScoreboard($this, ScoreboardAPI::getInstance()->getScoreboardViewers($this));
 		return $this;
 	}
 
@@ -204,6 +206,7 @@ class Scoreboard {
 	 */
 	public function setDisplaySlot(string $displaySlot) : Scoreboard {
 		$this->displaySlot = $displaySlot;
+		ScoreboardAPI::getInstance()->sendScoreboard($this, ScoreboardAPI::getInstance()->getScoreboardViewers($this));
 		return $this;
 	}
 
@@ -221,6 +224,7 @@ class Scoreboard {
 	 */
 	public function setSortOrder(int $sortOrder) : Scoreboard {
 		$this->sortOrder = $sortOrder;
+		ScoreboardAPI::getInstance()->sendScoreboard($this, ScoreboardAPI::getInstance()->getScoreboardViewers($this));
 		return $this;
 	}
 
@@ -238,6 +242,7 @@ class Scoreboard {
 	 */
 	public function setScoreboardId(int $scoreboardId) : Scoreboard {
 		$this->scoreboardId = $scoreboardId;
+		ScoreboardAPI::getInstance()->sendScoreboard($this, ScoreboardAPI::getInstance()->getScoreboardViewers($this));
 		return $this;
 	}
 
