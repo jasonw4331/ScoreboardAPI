@@ -62,28 +62,33 @@ class Scoreboard {
 	}
 
 	/**
-	 * Automatically pads any custom text entries according to score digit count
+	 * @param ScoreboardEntry $data
+	 * @param Player[] $players
+	 *
+	 * @return Scoreboard
 	 */
-	public function padEntries() : void {
-		$entries = [];
-		$maxSpaces = 1;
-		foreach($this->entries as $entry) {
-			if($entry->type !== ScoreboardEntry::TYPE_FAKE_PLAYER) {
-				continue;
-			}
-			$entries[] = $entry;
-			$digitCount = strlen((string)$entry->score);
-			if($maxSpaces < $digitCount) {
-				$maxSpaces = $digitCount;
-			}
-			$this->removeEntry($entry);
+	public function addEntry(ScoreboardEntry $data, array $players = []) : Scoreboard {
+		if($data->objectiveName !== $this->objectiveName) {
+			throw new \UnexpectedValueException("Scoreboard entry data does not match Scoreboard data");
 		}
-		foreach($entries as $entry) {
-			if($entry->customName{strlen($entry->customName)} !== " ") {
-				$entry->customName = str_pad($entry->customName, $maxSpaces - strlen((string)$entry->score));
-			}
-			$this->addEntry($entry);
+		if($data->scoreboardId - $this->scoreboardId > self::MAX_LINES or $data->scoreboardId - $this->scoreboardId < 0) {
+			throw new \OutOfRangeException("Scoreboard entry line number is out of range 0-15");
 		}
+		$pk = new SetScorePacket();
+		$pk->type = SetScorePacket::TYPE_CHANGE;
+		$this->entries[] = $pk->entries[] = $data;
+		if(!empty($players)) {
+			foreach($players as $player) {
+				$this->entryViewers[$data->objectiveName ?? $data->entityUniqueId][] = $player->getName();
+				$player->sendDataPacket($pk);
+			}
+		}else {
+			foreach(ScoreboardAPI::getInstance()->getScoreboardViewers($this) as $player) {
+				$this->entryViewers[$data->objectiveName ?? $data->entityUniqueId][] = $player->getName();
+				$player->sendDataPacket($pk);
+			}
+		}
+		return $this;
 	}
 
 	/**
@@ -132,28 +137,62 @@ class Scoreboard {
 	 *
 	 * @return Scoreboard
 	 */
-	public function addEntry(ScoreboardEntry $data, array $players = []) : Scoreboard {
+	public function updateEntry(ScoreboardEntry $data, array $players = []) : Scoreboard {
 		if($data->objectiveName !== $this->objectiveName) {
 			throw new \UnexpectedValueException("Scoreboard entry data does not match Scoreboard data");
 		}
 		if($data->scoreboardId - $this->scoreboardId > self::MAX_LINES or $data->scoreboardId - $this->scoreboardId < 0) {
-			throw new \OutOfRangeException("Scoreboard entry line number is out of range 0-15");
+			throw new \InvalidArgumentException("Scoreboard entry line number must be within range 0-15");
 		}
 		$pk = new SetScorePacket();
 		$pk->type = SetScorePacket::TYPE_CHANGE;
-		$this->entries[] = $pk->entries[] = $data;
+		$found = false;
+		foreach($this->entries as $key => $entry) {
+			if($entry->scoreboardId === $data->scoreboardId) { // entries are the same because line numbers/ids are the same
+				$this->entries[$key] = $pk->entries[] = $data;
+				$found = true;
+				break;
+			}
+		}
+		if(!$found) {
+			throw new \InvalidArgumentException("Entries must be added to the scoreboard before being updated");
+		}
+
 		if(!empty($players)) {
 			foreach($players as $player) {
-				$this->entryViewers[$data->objectiveName ?? $data->entityUniqueId][] = $player->getName();
 				$player->sendDataPacket($pk);
 			}
 		}else {
 			foreach(ScoreboardAPI::getInstance()->getScoreboardViewers($this) as $player) {
-				$this->entryViewers[$data->objectiveName ?? $data->entityUniqueId][] = $player->getName();
 				$player->sendDataPacket($pk);
 			}
 		}
 		return $this;
+	}
+
+	/**
+	 * Automatically pads any custom text entries according to score digit count
+	 */
+	public function padEntries() : void {
+		$entries = [];
+		$maxSpaces = 1;
+		foreach($this->entries as $entry) {
+			if($entry->type !== ScoreboardEntry::TYPE_FAKE_PLAYER) {
+				continue;
+			}
+			$entries[] = $entry;
+			$digitCount = strlen((string)$entry->score);
+			if($maxSpaces < $digitCount) {
+				$maxSpaces = $digitCount;
+			}
+			$this->removeEntry($entry);
+		}
+		foreach($entries as $entry) {
+			if($entry->customName{strlen($entry->customName)} !== " ") {
+				$entry->customName = str_pad($entry->customName, $maxSpaces - strlen((string)$entry->score));
+			}
+			$this->addEntry($entry);
+		}
 	}
 
 	/**
