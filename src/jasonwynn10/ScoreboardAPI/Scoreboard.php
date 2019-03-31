@@ -174,6 +174,7 @@ class Scoreboard {
 	 * Automatically pads any custom text entries according to score digit count
 	 */
 	public function padEntries() : void {
+		/** @var ScoreboardEntry[] $entries */
 		$entries = [];
 		$maxSpaces = 1;
 		foreach($this->entries as $entry) {
