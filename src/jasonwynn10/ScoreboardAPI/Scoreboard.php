@@ -299,7 +299,7 @@ class Scoreboard {
 	 */
 	public function getEntryViewers(ScoreboardEntry $entry) : array {
 		$return = [];
-		foreach($this->entryViewers[$entry->customName ?? $entry->entityUniqueId] as $name) {
+		foreach($this->entryViewers[$entry->objectiveName ?? $entry->entityUniqueId] as $name) {
 			$player = Server::getInstance()->getPlayer($name);
 			if($player !== null) {
 				$return[] = $player;
