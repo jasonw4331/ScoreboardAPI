@@ -113,17 +113,17 @@ class Scoreboard {
 		$pk->entries[] = $data;
 		if(!empty($players)) {
 			foreach($players as $player) {
-				$key = array_search($player->getName(), $this->entryViewers[$data->customName ?? $data->entityUniqueId]);
+				$key = array_search($player->getName(), $this->entryViewers[$data->objectiveName ?? $data->entityUniqueId]);
 				if($key !== false) {
-					unset($this->entryViewers[$data->customName ?? $data->entityUniqueId][$key]);
+					unset($this->entryViewers[$data->objectiveName ?? $data->entityUniqueId][$key]);
 				}
 				$player->sendDataPacket($pk);
 			}
 		}else {
 			foreach(ScoreboardAPI::getInstance()->getScoreboardViewers($this) as $player) {
-				$key = array_search($player->getName(), $this->entryViewers[$data->customName ?? $data->entityUniqueId]);
+				$key = array_search($player->getName(), $this->entryViewers[$data->objectiveName ?? $data->entityUniqueId]);
 				if($key !== false) {
-					unset($this->entryViewers[$data->customName ?? $data->entityUniqueId][$key]);
+					unset($this->entryViewers[$data->objectiveName ?? $data->entityUniqueId][$key]);
 				}
 				$player->sendDataPacket($pk);
 			}
