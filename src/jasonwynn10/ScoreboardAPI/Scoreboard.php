@@ -113,6 +113,8 @@ class Scoreboard {
 		$pk->entries[] = $data;
 		if(!empty($players)) {
 			foreach($players as $player) {
+				if(!isset($this->entryViewers[$data->objectiveName ?? $data->entityUniqueId]))
+					continue;
 				$key = array_search($player->getName(), $this->entryViewers[$data->objectiveName ?? $data->entityUniqueId]);
 				if($key !== false) {
 					unset($this->entryViewers[$data->objectiveName ?? $data->entityUniqueId][$key]);
@@ -121,6 +123,8 @@ class Scoreboard {
 			}
 		}else {
 			foreach(ScoreboardAPI::getInstance()->getScoreboardViewers($this) as $player) {
+				if(!isset($this->entryViewers[$data->objectiveName ?? $data->entityUniqueId]))
+					continue;
 				$key = array_search($player->getName(), $this->entryViewers[$data->objectiveName ?? $data->entityUniqueId]);
 				if($key !== false) {
 					unset($this->entryViewers[$data->objectiveName ?? $data->entityUniqueId][$key]);
@@ -189,7 +193,7 @@ class Scoreboard {
 			$this->removeEntry($entry);
 		}
 		foreach($entries as $entry) {
-			if($entry->customName{strlen($entry->customName)} !== " ") {
+			if($entry->customName{(strlen($entry->customName)-1)} !== " ") {
 				$entry->customName = str_pad($entry->customName, $maxSpaces - strlen((string)$entry->score));
 			}
 			$this->addEntry($entry);
@@ -300,6 +304,8 @@ class Scoreboard {
 	 */
 	public function getEntryViewers(ScoreboardEntry $entry) : array {
 		$return = [];
+		if(!isset($this->entryViewers[$entry->objectiveName ?? $entry->entityUniqueId]))
+			return [];
 		foreach($this->entryViewers[$entry->objectiveName ?? $entry->entityUniqueId] as $name) {
 			$player = Server::getInstance()->getPlayer($name);
 			if($player !== null) {
