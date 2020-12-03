@@ -2,11 +2,16 @@
 declare(strict_types=1);
 namespace jasonwynn10\ScoreboardAPI;
 
+use InvalidArgumentException;
+use OutOfRangeException;
 use pocketmine\network\mcpe\protocol\SetScorePacket;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\Server;
+use RuntimeException;
+use UnexpectedValueException;
 
-class Scoreboard {
+class Scoreboard
+{
 	public const MAX_LINES = 15;
 	public const SORT_ASCENDING = 0;
 	public const SORT_DESCENDING = 1;
@@ -15,19 +20,19 @@ class Scoreboard {
 	public const SLOT_BELOWNAME = "belowname";
 
 	/** @var string */
-	protected $objectiveName = "";
+	protected string $objectiveName = "";
 	/** @var string */
-	protected $displayName = "";
+	protected string $displayName = "";
 	/** @var string */
-	protected $displaySlot = self::SLOT_SIDEBAR;
+	protected string $displaySlot = self::SLOT_SIDEBAR;
 	/** @var int */
-	protected $sortOrder = self::SORT_ASCENDING;
+	protected int $sortOrder = self::SORT_ASCENDING;
 	/** @var int */
-	protected $scoreboardId = 0;
+	protected int $scoreboardId = 0;
 	/** @var ScoreboardEntry[] */
-	protected $entries = [];
+	protected array $entries = [];
 	/** @var string[][] */
-	protected $entryViewers = [];
+	protected array $entryViewers = [];
 
 	/**
 	 * Scoreboard constructor.
@@ -53,10 +58,11 @@ class Scoreboard {
 	 * @param int|string $identifier use entity unique id if type is player or entity
 	 *
 	 * @return ScoreboardEntry
+	 * @throws OutOfRangeException
 	 */
 	public function createEntry(int $line, int $score, int $type = ScoreboardEntry::TYPE_FAKE_PLAYER, $identifier = "identifier") : ScoreboardEntry {
 		if($line > self::MAX_LINES or $line < 0) {
-			throw new \OutOfRangeException("Entry line number must be in range 0-15");
+			throw new OutOfRangeException("Entry line number must be in range 0-15");
 		}
 		return new ScoreboardEntry($this, $line, $score, $type, $identifier);
 	}
@@ -66,13 +72,16 @@ class Scoreboard {
 	 * @param Player[] $players
 	 *
 	 * @return Scoreboard
+	 * @throws UnexpectedValueException
+	 * @throws InvalidArgumentException
+	 * @throws OutOfRangeException
 	 */
 	public function addEntry(ScoreboardEntry $data, array $players = []) : Scoreboard {
 		if($data->objectiveName !== $this->objectiveName) {
-			throw new \UnexpectedValueException("Scoreboard entry data does not match Scoreboard data");
+			throw new UnexpectedValueException("Scoreboard entry data does not match Scoreboard data");
 		}
 		if($data->scoreboardId - $this->scoreboardId > self::MAX_LINES or $data->scoreboardId - $this->scoreboardId < 0) {
-			throw new \OutOfRangeException("Scoreboard entry line number is out of range 0-15");
+			throw new OutOfRangeException("Scoreboard entry line number is out of range 0-15");
 		}
 		$pk = new SetScorePacket();
 		$pk->type = SetScorePacket::TYPE_CHANGE;
@@ -80,12 +89,12 @@ class Scoreboard {
 		if(!empty($players)) {
 			foreach($players as $player) {
 				$this->entryViewers[$data->objectiveName ?? $data->entityUniqueId][] = $player->getName();
-				$player->sendDataPacket($pk);
+				$player->getNetworkSession()->sendDataPacket($pk);
 			}
 		}else {
 			foreach(ScoreboardAPI::getInstance()->getScoreboardViewers($this) as $player) {
 				$this->entryViewers[$data->objectiveName ?? $data->entityUniqueId][] = $player->getName();
-				$player->sendDataPacket($pk);
+				$player->getNetworkSession()->sendDataPacket($pk);
 			}
 		}
 		return $this;
@@ -96,13 +105,17 @@ class Scoreboard {
 	 * @param Player[] $players
 	 *
 	 * @return Scoreboard
+	 * @throws InvalidArgumentException
+	 * @throws InvalidArgumentException
+	 * @throws OutOfRangeException
+	 * @throws UnexpectedValueException
 	 */
 	public function removeEntry(ScoreboardEntry $data, array $players = []) : Scoreboard {
 		if($data->objectiveName !== $this->objectiveName) {
-			throw new \UnexpectedValueException("Scoreboard entry data does not match Scoreboard data");
+			throw new UnexpectedValueException("Scoreboard entry data does not match Scoreboard data");
 		}
 		if($data->scoreboardId - $this->scoreboardId > self::MAX_LINES or $data->scoreboardId - $this->scoreboardId < 0) {
-			throw new \OutOfRangeException("Scoreboard entry line number is out of range 0-15");
+			throw new OutOfRangeException("Scoreboard entry line number is out of range 0-15");
 		}
 		$key = array_search($data, $this->entries);
 		if($key !== false) {
@@ -113,23 +126,23 @@ class Scoreboard {
 		$pk->entries[] = $data;
 		if(!empty($players)) {
 			foreach($players as $player) {
-				if(!isset($this->entryViewers[$data->objectiveName ?? $data->entityUniqueId]))
+				if (!isset($this->entryViewers[$data->objectiveName ?? $data->entityUniqueId]))
 					continue;
 				$key = array_search($player->getName(), $this->entryViewers[$data->objectiveName ?? $data->entityUniqueId]);
-				if($key !== false) {
+				if ($key !== false) {
 					unset($this->entryViewers[$data->objectiveName ?? $data->entityUniqueId][$key]);
 				}
-				$player->sendDataPacket($pk);
+				$player->getNetworkSession()->sendDataPacket($pk);
 			}
 		}else {
 			foreach(ScoreboardAPI::getInstance()->getScoreboardViewers($this) as $player) {
-				if(!isset($this->entryViewers[$data->objectiveName ?? $data->entityUniqueId]))
+				if (!isset($this->entryViewers[$data->objectiveName ?? $data->entityUniqueId]))
 					continue;
 				$key = array_search($player->getName(), $this->entryViewers[$data->objectiveName ?? $data->entityUniqueId]);
-				if($key !== false) {
+				if ($key !== false) {
 					unset($this->entryViewers[$data->objectiveName ?? $data->entityUniqueId][$key]);
 				}
-				$player->sendDataPacket($pk);
+				$player->getNetworkSession()->sendDataPacket($pk);
 			}
 		}
 		return $this;
@@ -140,13 +153,18 @@ class Scoreboard {
 	 * @param Player[] $players
 	 *
 	 * @return Scoreboard
+	 * @throws InvalidArgumentException
+	 * @throws InvalidArgumentException
+	 * @throws InvalidArgumentException
+	 * @throws InvalidArgumentException
+	 * @throws UnexpectedValueException
 	 */
 	public function updateEntry(ScoreboardEntry $data, array $players = []) : Scoreboard {
 		if($data->objectiveName !== $this->objectiveName) {
-			throw new \UnexpectedValueException("Scoreboard entry data does not match Scoreboard data");
+			throw new UnexpectedValueException("Scoreboard entry data does not match Scoreboard data");
 		}
 		if($data->scoreboardId - $this->scoreboardId > self::MAX_LINES or $data->scoreboardId - $this->scoreboardId < 0) {
-			throw new \InvalidArgumentException("Scoreboard entry line number must be within range 0-15");
+			throw new InvalidArgumentException("Scoreboard entry line number must be within range 0-15");
 		}
 		$pk = new SetScorePacket();
 		$pk->type = SetScorePacket::TYPE_CHANGE;
@@ -159,16 +177,16 @@ class Scoreboard {
 			}
 		}
 		if(!$found) {
-			throw new \InvalidArgumentException("Entries must be added to the scoreboard before being updated");
+			throw new InvalidArgumentException("Entries must be added to the scoreboard before being updated");
 		}
 
 		if(!empty($players)) {
 			foreach($players as $player) {
-				$player->sendDataPacket($pk);
+				$player->getNetworkSession()->sendDataPacket($pk);
 			}
 		}else {
 			foreach(ScoreboardAPI::getInstance()->getScoreboardViewers($this) as $player) {
-				$player->sendDataPacket($pk);
+				$player->getNetworkSession()->sendDataPacket($pk);
 			}
 		}
 		return $this;
@@ -176,6 +194,10 @@ class Scoreboard {
 
 	/**
 	 * Automatically pads any custom text entries according to score digit count
+	 * @throws InvalidArgumentException
+	 * @throws InvalidArgumentException
+	 * @throws OutOfRangeException
+	 * @throws UnexpectedValueException
 	 */
 	public function padEntries() : void {
 		/** @var ScoreboardEntry[] $entries */
@@ -193,7 +215,7 @@ class Scoreboard {
 			$this->removeEntry($entry);
 		}
 		foreach($entries as $entry) {
-			if($entry->customName{(strlen($entry->customName)-1)} !== " ") {
+			if ($entry->customName[(strlen($entry->customName) - 1)] !== " ") {
 				$entry->customName = str_pad($entry->customName, $maxSpaces - strlen((string)$entry->score));
 			}
 			$this->addEntry($entry);
@@ -211,6 +233,8 @@ class Scoreboard {
 	 * @param string $objectiveName
 	 *
 	 * @return Scoreboard
+	 * @throws InvalidArgumentException
+	 * @throws RuntimeException
 	 */
 	public function setObjectiveName(string $objectiveName) : Scoreboard {
 		$this->objectiveName = $objectiveName;
@@ -229,6 +253,9 @@ class Scoreboard {
 	 * @param string $displayName
 	 *
 	 * @return Scoreboard
+	 * @throws InvalidArgumentException
+	 * @throws InvalidArgumentException
+	 * @throws RuntimeException
 	 */
 	public function setDisplayName(string $displayName) : Scoreboard {
 		$this->displayName = $displayName;
@@ -247,6 +274,9 @@ class Scoreboard {
 	 * @param string $displaySlot
 	 *
 	 * @return Scoreboard
+	 * @throws InvalidArgumentException
+	 * @throws InvalidArgumentException
+	 * @throws RuntimeException
 	 */
 	public function setDisplaySlot(string $displaySlot) : Scoreboard {
 		$this->displaySlot = $displaySlot;
@@ -265,6 +295,9 @@ class Scoreboard {
 	 * @param int $sortOrder
 	 *
 	 * @return Scoreboard
+	 * @throws InvalidArgumentException
+	 * @throws InvalidArgumentException
+	 * @throws RuntimeException
 	 */
 	public function setSortOrder(int $sortOrder) : Scoreboard {
 		$this->sortOrder = $sortOrder;
@@ -283,6 +316,9 @@ class Scoreboard {
 	 * @param int $scoreboardId
 	 *
 	 * @return Scoreboard
+	 * @throws InvalidArgumentException
+	 * @throws InvalidArgumentException
+	 * @throws RuntimeException
 	 */
 	public function setScoreboardId(int $scoreboardId) : Scoreboard {
 		$this->scoreboardId = $scoreboardId;
@@ -301,14 +337,15 @@ class Scoreboard {
 	 * @param ScoreboardEntry $entry
 	 *
 	 * @return Player[]
+	 * @throws RuntimeException
 	 */
 	public function getEntryViewers(ScoreboardEntry $entry) : array {
 		$return = [];
 		if(!isset($this->entryViewers[$entry->objectiveName ?? $entry->entityUniqueId]))
 			return [];
 		foreach($this->entryViewers[$entry->objectiveName ?? $entry->entityUniqueId] as $name) {
-			$player = Server::getInstance()->getPlayer($name);
-			if($player !== null) {
+			$player = Server::getInstance()->getPlayerExact($name);
+			if ($player !== null) {
 				$return[] = $player;
 			}
 		}
