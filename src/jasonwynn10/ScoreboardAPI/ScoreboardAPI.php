@@ -7,7 +7,7 @@ use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\network\mcpe\protocol\RemoveObjectivePacket;
 use pocketmine\network\mcpe\protocol\SetDisplayObjectivePacket;
 use pocketmine\network\mcpe\protocol\SetScorePacket;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 
 class ScoreboardAPI extends PluginBase implements Listener {
@@ -60,14 +60,14 @@ class ScoreboardAPI extends PluginBase implements Listener {
 				if($key !== false) {
 					unset($this->scoreboardViewers[$scoreboard->getObjectiveName()][$key]);
 				}
-				$player->sendDataPacket($pk);
+				$player->getNetworkSession()->sendDataPacket($pk);
 			}
 		}else {
 			foreach($this->getScoreboardViewers($scoreboard) as $player) {
 				if($scoreboard->getDisplaySlot() === Scoreboard::SLOT_BELOWNAME) {
 					$player->setScoreTag("");
 				}
-				$player->sendDataPacket($pk);
+				$player->getNetworkSession()->sendDataPacket($pk);
 			}
 			unset($this->scoreboardViewers[$scoreboard->getObjectiveName()]);
 		}
@@ -143,8 +143,8 @@ class ScoreboardAPI extends PluginBase implements Listener {
 					$player->setScoreTag($scoreboard->getDisplayName());
 				}
 				$this->scoreboardViewers[$scoreboard->getObjectiveName()][] = $player->getName();
-				$player->sendDataPacket($pk);
-				$player->sendDataPacket($pk2);
+				$player->getNetworkSession()->sendDataPacket($pk);
+				$player->getNetworkSession()->sendDataPacket($pk2);
 			}
 		}else {
 			foreach($this->getScoreboardViewers($scoreboard) as $player) {
@@ -157,8 +157,8 @@ class ScoreboardAPI extends PluginBase implements Listener {
 					$player->setScoreTag($scoreboard->getDisplayName());
 				}
 				$this->scoreboardViewers[$scoreboard->getObjectiveName()][] = $player->getName();
-				$player->sendDataPacket($pk);
-				$player->sendDataPacket($pk2);
+				$player->getNetworkSession()->sendDataPacket($pk);
+				$player->getNetworkSession()->sendDataPacket($pk2);
 			}
 		}
 		return $scoreboard;
