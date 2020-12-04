@@ -193,7 +193,7 @@ class Scoreboard {
 			$this->removeEntry($entry);
 		}
 		foreach($entries as $entry) {
-			if($entry->customName{(strlen($entry->customName)-1)} !== " ") {
+			if($entry->customName[(strlen($entry->customName)-1)] !== " ") {
 				$entry->customName = str_pad($entry->customName, $maxSpaces - strlen((string)$entry->score));
 			}
 			$this->addEntry($entry);
