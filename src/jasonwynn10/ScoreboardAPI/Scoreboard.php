@@ -307,7 +307,7 @@ class Scoreboard {
 		if(!isset($this->entryViewers[$entry->objectiveName ?? $entry->entityUniqueId]))
 			return [];
 		foreach($this->entryViewers[$entry->objectiveName ?? $entry->entityUniqueId] as $name) {
-			$player = Server::getInstance()->getPlayer($name);
+			$player = Server::getInstance()->getPlayerExact($name);
 			if($player !== null) {
 				$return[] = $player;
 			}
