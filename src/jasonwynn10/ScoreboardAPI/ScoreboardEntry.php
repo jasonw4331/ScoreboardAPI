@@ -44,7 +44,7 @@ class ScoreboardEntry extends ScorePacketEntry {
 				$maxSpaces = $digitCount;
 			}
 		}
-		if($this->customName{(strlen($this->customName)-1)} !== " ") {
+		if($this->customName[(strlen($this->customName)-1)] !== " ") {
 			$this->customName = str_pad($this->customName, $maxSpaces - strlen((string)$this->score));
 		}
 		$scoreboard->addEntry($this);
